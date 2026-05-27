@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>F4 Circle Geometry: Exploration Engine</title>
+    <title>F4 Circle Geometry: Interactive Exploration Dashboard</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.5; max-width: 950px; margin: 0 auto; padding: 15px; background-color: #f0f2f5; }
         .grid-layout { display: grid; grid-template-columns: 1fr; gap: 20px; }
@@ -101,12 +101,11 @@
     <script>
         const canvas = document.getElementById('geometryCanvas');
         const ctx = canvas.getContext('2d');
-        let cx = 225, cy = 160; // dynamic center coordinates
+        let cx = 225, cy = 160; 
         const currentR = 3.5; 
         const rPx = currentR * 32; 
         let currentMode = 'radius';
 
-        // Accordion Management and View Sync
         const acc = document.getElementsByClassName("accordion");
         for (let i = 0; i < acc.length; i++) {
             acc[i].addEventListener("click", function() {
@@ -133,7 +132,6 @@
 
         function updateVisualization(mode) {
             currentMode = mode;
-            // Shift center dynamically for shifted coordinate visualization, reset for others
             if (mode === 'coordinates') {
                 cx = 225 + (2 * 32); 
                 cy = 160 - (1 * 32);
@@ -203,7 +201,7 @@
                 ctx.beginPath(); ctx.moveTo(cx - 120, tY); ctx.lineTo(cx + 120, tY); ctx.stroke();
                 
                 ctx.strokeStyle = '#2c3e50';
-                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, tY); stroke();
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, tY); ctx.stroke();
                 ctx.strokeRect(cx, tY - 8, 8, 8);
                 
                 ctx.fillStyle = '#e67e22';
@@ -222,14 +220,12 @@
                 ctx.fillText("Equation: x² + y² = 12.25", cx - 75, cy + rPx + 20);
             }
             else if (currentMode === 'coordinates') {
-                // Cartesian plane alignment grid for shifted center setup
                 ctx.strokeStyle = '#7f8c8d'; ctx.lineWidth = 1; ctx.setLineDash([2, 2]);
                 const originX = 225, originY = 160;
                 ctx.beginPath(); ctx.moveTo(20, originY); ctx.lineTo(430, originY); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(originX, 20); ctx.lineTo(originX, 300); ctx.stroke();
                 ctx.setLineDash([]);
                 
-                // Show tracking vector lines from origin to shifted center location
                 ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 1.5;
                 ctx.beginPath(); ctx.moveTo(originX, originY); ctx.lineTo(cx, cy); ctx.stroke();
                 
@@ -240,21 +236,17 @@
                 ctx.fillText("Form: (x - 2)² + (y - 1)² = 3.5²", 35, 290);
             }
             else if (currentMode === 'angles') {
-                // Arc baseline angle coordinates
                 const p1x = cx + rPx * Math.cos(Math.PI * 0.2);
                 const p1y = cy + rPx * Math.sin(Math.PI * 0.2);
                 const p2x = cx + rPx * Math.cos(Math.PI * 0.8);
                 const p2y = cy + rPx * Math.sin(Math.PI * 0.8);
                 
-                // Circumference top point coordinate
                 const topX = cx + rPx * Math.cos(Math.PI * 1.4);
                 const topY = cy + rPx * Math.sin(Math.PI * 1.4);
                 
-                // Draw angle pathing out from center base bounds
                 ctx.strokeStyle = '#e67e22'; ctx.lineWidth = 2;
                 ctx.beginPath(); ctx.moveTo(p1x, p1y); ctx.lineTo(cx, cy); ctx.lineTo(p2x, p2y); ctx.stroke();
                 
-                // Draw remaining path up to circumference limits
                 ctx.strokeStyle = '#2980b9';
                 ctx.beginPath(); ctx.moveTo(p1x, p1y); ctx.lineTo(topX, topY); ctx.lineTo(p2x, p2y); ctx.stroke();
                 
@@ -265,7 +257,6 @@
             }
         }
 
-        // Initialize display with default panel open
         acc[0].classList.add("active");
         acc[0].nextElementSibling.style.maxHeight = acc[0].nextElementSibling.scrollHeight + "px";
         draw();
