@@ -3,97 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>F4 Circle Geometry: Interactive Exploration Dashboard</title>
+    <title>F4 Circle Geometry: Interactive Exploration Engine</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.5; max-width: 950px; margin: 0 auto; padding: 15px; background-color: #f0f2f5; }
-        .grid-layout { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        @media (min-width: 768px) { .grid-layout { grid-template-columns: 1.2fr 1fr; } }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.06); margin-bottom: 15px; }
-        h1 { color: #1a2a6c; text-align: center; margin-bottom: 15px; font-size: 2em; }
-        .canvas-container { text-align: center; background: #fff; border: 2px solid #e0e0e0; border-radius: 10px; padding: 10px; }
-        canvas { background: #ffffff; border-radius: 8px; max-width: 100%; height: auto; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; max-width: 1100px; margin: 0 auto; padding: 20px; background-color: #f0f2f5; color: #2c3e50; }
+        .grid-layout { display: grid; grid-template-columns: 1fr; gap: 25px; }
+        @media (min-width: 768px) { .grid-layout { grid-template-columns: 1.1fr 1fr; } }
+        .card { background: white; padding: 25px; border-radius: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); margin-bottom: 20px; }
+        h1 { color: #1a2a6c; text-align: center; margin-bottom: 5px; font-size: 2.2em; }
+        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 20px; font-weight: 400; }
         
-        /* Guide / Reference Accordion Section */
-        .reference-heading { color: #2c3e50; margin: 0 0 10px 0; font-size: 1.3em; border-bottom: 2px solid #3498db; padding-bottom: 5px; }
-        .accordion { background-color: #e8f1f9; color: #2c3e50; cursor: pointer; padding: 12px; width: 100%; text-align: left; border: none; outline: none; transition: 0.4s; font-size: 1em; font-weight: bold; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        /* Canvas & Dynamic Controls */
+        .canvas-container { text-align: center; background: #fff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 15px; position: relative; }
+        canvas { background: #ffffff; border-radius: 8px; max-width: 100%; height: auto; box-shadow: inset 0 0 10px rgba(0,0,0,0.02); }
+        .control-panel { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; margin-top: 15px; text-align: left; }
+        .control-group { display: none; flex-direction: column; gap: 8px; }
+        .control-group.active { display: flex; }
+        .control-label { font-weight: 600; font-size: 0.95em; color: #34495e; display: flex; justify-content: space-between; }
+        .control-label span { color: #3498db; }
+        input[type="range"] { width: 100%; height: 6px; background: #cbd5e1; border-radius: 5px; outline: none; -webkit-appearance: none; margin: 10px 0; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #3498db; cursor: pointer; transition: transform 0.1s; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        
+        /* Accordion Styling */
+        .reference-heading { color: #1a2a6c; margin: 0 0 15px 0; font-size: 1.4em; border-bottom: 3px solid #3498db; padding-bottom: 8px; font-weight: 700; }
+        .accordion { background-color: #e8f1f9; color: #2c3e50; cursor: pointer; padding: 14px 18px; width: 100%; text-align: left; border: none; outline: none; transition: 0.3s; font-size: 1.05em; font-weight: bold; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .active, .accordion:hover { background-color: #d2e4f3; }
-        .panel { padding: 0 15px; background-color: white; max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; border-left: 3px solid #3498db; margin-bottom: 10px; font-size: 0.95em; }
-        .panel code { background: #f1f2f6; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; font-weight: bold; }
-        .panel ul { margin: 5px 0; padding-left: 20px; }
+        .panel { padding: 0 18px; background-color: white; max-height: 0; overflow: hidden; transition: max-height 0.25s ease-out; border-left: 4px solid #3498db; margin-bottom: 10px; font-size: 0.95em; }
+        .panel p { margin: 12px 0; }
+        .panel code { background: #f1f2f6; padding: 3px 6px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; font-weight: bold; color: #c0392b; }
+        .panel ul { margin: 8px 0; padding-left: 20px; }
+        .panel li { margin-bottom: 6px; }
+        .math-block { background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px dashed #cbd5e1; font-family: 'Courier New', Courier, monospace; margin: 10px 0; font-weight: 600; }
         
-        .instruction-banner { background: #f8fbff; padding: 12px; border-left: 4px solid #3498db; border-radius: 4px; font-size: 0.95em; color: #34495e; margin-bottom: 15px; font-weight: 500; }
+        .instruction-banner { background: #f0f7ff; padding: 14px; border-left: 5px solid #3498db; border-radius: 6px; font-size: 0.95em; color: #2c3e50; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
     </style>
 </head>
 <body>
 
     <h1>Circle Geometry: Exploration Dashboard</h1>
+    <div class="subtitle">Interactive Form 4 Learning Workspace</div>
 
     <div class="instruction-banner">
-        💡 <b>How to use:</b> Click on any theorem panel on the right. The visual canvas will update dynamically to display the geometric layout.
+        💡 <b>How to interact:</b> Select a structural concept or theorem from the sidebar accordion panels. Use the dynamic <b>Interactive Simulation Controls</b> tray under the canvas viewport to slide, scale, and manipulate geometric parts in real time!
     </div>
 
     <div class="grid-layout">
         <div>
             <div class="card">
                 <div class="canvas-container">
-                    <canvas id="geometryCanvas" width="450" height="320"></canvas>
+                    <canvas id="geometryCanvas" width="500" height="360"></canvas>
+                </div>
+                
+                <div class="control-panel">
+                    <h3 style="margin: 0 0 12px 0; font-size: 1.1em; color: #1a2a6c;">🎛️ Interactive Simulation Controls</h3>
+                    
+                    <div id="ctrl-radius" class="control-group active">
+                        <label class="control-label">Radius Length (r): <span id="val-radius">3.5</span> cm</label>
+                        <input type="range" id="input-radius" min="1.5" max="5.0" step="0.1" value="3.5">
+                    </div>
+                    
+                    <div id="ctrl-bisector" class="control-group">
+                        <label class="control-label">Chord Distance from Center (d): <span id="val-bisector">1.5</span> cm</label>
+                        <input type="range" id="input-bisector" min="0.0" max="3.2" step="0.1" value="1.5">
+                    </div>
+                    
+                    <div id="ctrl-tangent" class="control-group">
+                        <label class="control-label">Point of Contact Angle (θ): <span id="val-tangent">90</span>°</label>
+                        <input type="range" id="input-tangent" min="0" max="360" step="5" value="90">
+                    </div>
+                    
+                    <div id="ctrl-coordinates" class="control-group">
+                        <label class="control-label">Horizontal Center Shift (h): <span id="val-h">2.0</span></label>
+                        <input type="range" id="input-h" min="-3.0" max="3.0" step="0.2" value="2.0">
+                        <label class="control-label" style="margin-top: 10px;">Vertical Center Shift (k): <span id="val-k">1.0</span></label>
+                        <input type="range" id="input-k" min="-3.0" max="3.0" step="0.2" value="1.0">
+                    </div>
+                    
+                    <div id="ctrl-angles" class="control-group">
+                        <label class="control-label">Subtended Base Arc Angle: <span id="val-angles">100</span>°</label>
+                        <input type="range" id="input-angles" min="30" max="170" step="5" value="100">
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <div class="reference-heading">📐 Theorems & Formula Reference</div>
+            <div class="reference-heading">📐 Detailed Theorems &amp; Frameworks</div>
             
-            <button class="accordion" onclick="updateVisualization('radius')">1. Radius, Diameter & Chord <span>+</span></button>
+            <button class="accordion" onclick="updateVisualization('radius')">1. Radius, Diameter &amp; Chord <span>+</span></button>
             <div class="panel">
-                <p><b>Radius (r):</b> Distance from the center point to any edge.</p>
-                <p><b>Diameter (d):</b> Passes through center connecting opposite edges. <code>d = 2r</code></p>
-                <p><b>Chord:</b> Straight line segment whose endpoints lie on the circle boundary.</p>
+                <p>Circles are defined as a set of points equidistant from a singular focus core called the <b>Center</b>.</p>
+                <ul>
+                    <li><b>Radius (r):</b> The structural foundation vector stretching from the absolute core to the outer locus framework boundary.</li>
+                    <li><b>Diameter (d):</b> The maximal straight chord distance slicing directly across the circle framework through the center anchor. It is exactly double the radius scale.</li>
+                    <li><b>Chord:</b> Any line entry bridging two distinct boundary locus coordinates together without needing to intersect the center.</li>
+                </ul>
+                <div class="math-block">Diameter Equation: d = 2r</div>
             </div>
 
-            <button class="accordion" onclick="updateVisualization('area')">2. Area & Circumference <span>+</span></button>
+            <button class="accordion" onclick="updateVisualization('area')">2. Area &amp; Circumference <span>+</span></button>
             <div class="panel">
-                <p>Calculations based on <code>π = 3.14</code>:</p>
+                <p>Quantifying circle geometry utilizes the transcendental constant <b>pi (π ≈ 3.14159)</b>, representing the ratio of any circle's perimeter to its core diameter path.</p>
                 <ul>
-                    <li><b>Circumference (Perimeter):</b> <code>C = 2 * π * r</code></li>
-                    <li><b>Area:</b> <code>A = π * r²</code></li>
+                    <li><b>Circumference (C):</b> The total metric distance wrapping around the external boundary rim edge profile.</li>
+                    <li><b>Area (A):</b> The complete dimensional space enclosed inside the circular perimeter framework boundary.</li>
                 </ul>
+                <p>Adjusting the radius slider exponentially scales the interior space area compared to linear perimeter changes.</p>
+                <div class="math-block">C = 2πr <br>A = πr²</div>
             </div>
 
             <button class="accordion" onclick="updateVisualization('bisector')">3. Perpendicular Bisector Theorem <span>+</span></button>
             <div class="panel">
-                <p>A line from the center perpendicular to a chord always <b>bisects</b> that chord, forming a right-angled triangle:</p>
-                <p><code>r² = (Half Chord)² + (Distance from Center)²</code></p>
+                <p>This theorem provides a vital bridge between standard circular properties and linear trigonometry profiles:</p>
+                <p>When a line is drawn from the center of a circle perpendicular (at 90°) to a chord, it will always split that chord into two perfectly equal halves (<b>bisecting</b> it).</p>
+                <p>This layout creates a right-angled triangle profile inside the shape. By isolating half of the sliced chord, you can use the <b>Pythagorean Theorem</b> to find missing values:</p>
+                <div class="math-block">r² = (Half Chord)² + (Distance from Center)²</div>
             </div>
 
             <button class="accordion" onclick="updateVisualization('tangent')">4. Tangent Properties <span>+</span></button>
             <div class="panel">
-                <p><b>Tangent:</b> A line touching the circle boundary at exactly one point.</p>
+                <p>A <b>Tangent</b> line is a linear geometric vector passing along the circle exterior that strikes the boundary curve at exactly one coordinate point without slicing through the interior.</p>
                 <ul>
-                    <li>The angle between a radius and a tangent line at contact point is always <b>90°</b>.</li>
+                    <li><b>The 90° Contact Rule:</b> A radius line meeting a tangent line at its exact point of contact will always intersect at a perpendicular 90° angle.</li>
                 </ul>
+                <p>Use the slider to spin the point of contact around the circle to observe how the tangent line constantly maintains its perpendicular orientation relative to the radius.</p>
             </div>
             
             <button class="accordion" onclick="updateVisualization('equation')">5. General Circle Equation <span>+</span></button>
             <div class="panel">
-                <p>The standard equation for a circle centered at the origin (0,0) with radius <code>r</code> is:</p>
-                <p><code>x² + y² = r²</code></p>
+                <p>On a 2D Cartesian plane layout, a circle represents an collection of points matching specific coordinate conditions calculated using distance frameworks.</p>
+                <p>When fixed with its center directly over the origin coordinate <code>(0,0)</code>, the relation simplifies into standard form derived via basic Pythagorean tracking:</p>
+                <div class="math-block">x² + y² = r²</div>
+                <p>Every point <code>(x, y)</code> sitting precisely on the outer edge boundary will satisfy this algebraic criteria.</p>
             </div>
 
             <button class="accordion" onclick="updateVisualization('coordinates')">6. Center Coordinates (h, k) <span>+</span></button>
             <div class="panel">
-                <p>When a circle center shifts away from the origin to position <b><code>(h, k)</code></b>, its equation alters into vertex form:</p>
-                <p><code>(x - h)² + (y - k)² = r²</code></p>
-                <p><i>Example:</i> Centered at <code>(2, 1)</code> with radius <code>3.5</code> creates <code>(x - 2)² + (y - 1)² = 12.25</code>.</p>
+                <p>When a circle's center coordinates shift away from the origin to a new structural coordinate designated as <b><code>(h, k)</code></b>, the spatial tracking formula shifts accordingly.</p>
+                <p>This translation updates the algebraic structure into vertex form:</p>
+                <div class="math-block">(x - h)² + (y - k)² = r²</div>
+                <p>Use the <b>h</b> and <b>k</b> sliders to change the center position. You will see the coordinate map update and track the spatial transformation across the coordinate grid lines.</p>
             </div>
 
             <button class="accordion" onclick="updateVisualization('angles')">7. Angles Subtended Properties <span>+</span></button>
             <div class="panel">
-                <p><b>Angle at the Center Theorem:</b> The angle subtended by an arc at the center is exactly **twice** the angle subtended by it at any point on the remaining circumference.</p>
-                <ul>
-                    <li><code>Angle at Center = 2 * Angle at Circumference</code></li>
-                    <li>Angles subtended by the same arc in the same segment are equal.</li>
-                </ul>
+                <p>This foundational theorem dictates structural angular distribution properties across shared circular arc lengths:</p>
+                <p><b>Angle at the Center Theorem:</b> The angle subtended by an arc at the center point is exactly <b>twice (2x)</b> the size of the angle subtended by that same identical arc length extending to any point along the remaining circumference boundary profile.</p>
+                <div class="math-block">Angle at Center = 2 * Angle at Circumference</div>
+                <p>Slide the arc width slider to expand or contract the boundaries, and observe how the two angles scale proportionally.</p>
             </div>
         </div>
     </div>
@@ -101,11 +158,40 @@
     <script>
         const canvas = document.getElementById('geometryCanvas');
         const ctx = canvas.getContext('2d');
-        let cx = 225, cy = 160; 
-        const currentR = 3.5; 
-        const rPx = currentR * 32; 
+        
+        // Base Configuration Vectors
+        const baseCx = 250, baseCy = 180;
+        let scalePx = 32; // Pixels per cm
         let currentMode = 'radius';
 
+        // State Parameter Tracking
+        let paramRadius = 3.5;
+        let paramBisectorDist = 1.5;
+        let paramTangentDeg = 90;
+        let paramShiftH = 2.0;
+        let paramShiftK = 1.0;
+        let paramArcAngle = 100;
+
+        // UI Element Selectors
+        const inputs = {
+            radius: document.getElementById('input-radius'),
+            bisector: document.getElementById('input-bisector'),
+            tangent: document.getElementById('input-tangent'),
+            h: document.getElementById('input-h'),
+            k: document.getElementById('input-k'),
+            angles: document.getElementById('input-angles')
+        };
+
+        const values = {
+            radius: document.getElementById('val-radius'),
+            bisector: document.getElementById('val-bisector'),
+            tangent: document.getElementById('val-tangent'),
+            h: document.getElementById('val-h'),
+            k: document.getElementById('val-k'),
+            angles: document.getElementById('val-angles')
+        };
+
+        // Accordion Setup
         const acc = document.getElementsByClassName("accordion");
         for (let i = 0; i < acc.length; i++) {
             acc[i].addEventListener("click", function() {
@@ -116,7 +202,6 @@
                         acc[j].querySelector("span").textContent = "+";
                     }
                 }
-                
                 this.classList.toggle("active");
                 const panel = this.nextElementSibling;
                 const sign = this.querySelector("span");
@@ -130,14 +215,30 @@
             });
         }
 
+        // Connect Input Slider Controls to Real-time State Engine
+        inputs.radius.oninput = function() { paramRadius = parseFloat(this.value); values.radius.textContent = this.value; draw(); };
+        inputs.bisector.oninput = function() { paramBisectorDist = parseFloat(this.value); values.bisector.textContent = this.value; draw(); };
+        inputs.tangent.oninput = function() { paramTangentDeg = parseInt(this.value); values.tangent.textContent = this.value; draw(); };
+        inputs.h.oninput = function() { paramShiftH = parseFloat(this.value); values.h.textContent = this.value; draw(); };
+        inputs.k.oninput = function() { paramShiftK = parseFloat(this.value); values.k.textContent = this.value; draw(); };
+        inputs.angles.oninput = function() { paramArcAngle = parseInt(this.value); values.angles.textContent = this.value; draw(); };
+
         function updateVisualization(mode) {
             currentMode = mode;
-            if (mode === 'coordinates') {
-                cx = 225 + (2 * 32); 
-                cy = 160 - (1 * 32);
-            } else {
-                cx = 225;
-                cy = 160;
+            
+            // Toggle corresponding input slider tray view profile links
+            document.querySelectorAll('.control-group').forEach(el => el.classList.remove('active'));
+            
+            if (mode === 'radius' || mode === 'area' || mode === 'equation') {
+                document.getElementById('ctrl-radius').classList.add('active');
+            } else if (mode === 'bisector') {
+                document.getElementById('ctrl-bisector').classList.add('active');
+            } else if (mode === 'tangent') {
+                document.getElementById('ctrl-tangent').classList.add('active');
+            } else if (mode === 'coordinates') {
+                document.getElementById('ctrl-coordinates').classList.add('active');
+            } else if (mode === 'angles') {
+                document.getElementById('ctrl-angles').classList.add('active');
             }
             draw();
         }
@@ -145,118 +246,219 @@
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Base Circle
+            // Standard coordinate assignments reset dynamically
+            let cx = baseCx;
+            let cy = baseCy;
+            let rPx = paramRadius * scalePx;
+
+            // Enforce safe boundaries for chord calculations
+            if (paramBisectorDist > paramRadius - 0.2) {
+                paramBisectorDist = paramRadius - 0.2;
+                inputs.bisector.value = paramBisectorDist.toFixed(1);
+                values.bisector.textContent = paramBisectorDist.toFixed(1);
+            }
+
+            // Adjust center anchor offsets when running center-coordinate translations
+            if (currentMode === 'coordinates') {
+                cx = baseCx + (paramShiftH * scalePx);
+                cy = baseCy - (paramShiftK * scalePx); // Invert axis scale for natural quadrant directions
+                rPx = 3.5 * scalePx; // Normalize radius length for pure coordinate tracking
+            }
+
+            // 1. Draw Background Grid Lines for Coordinate Profiles
+            if (currentMode === 'equation' || currentMode === 'coordinates') {
+                ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1; ctx.setLineDash([]);
+                // Vertical grid lines
+                for(let x = 10; x < canvas.width; x += 32) {
+                    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+                }
+                // Horizontal grid lines
+                for(let y = 8; y < canvas.height; y += 32) {
+                    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+                }
+
+                // Render Primary Axes Crosshairs
+                ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.moveTo(20, baseCy); ctx.lineTo(canvas.width - 20, baseCy); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(baseCx, 20); ctx.lineTo(baseCx, canvas.height - 20); ctx.stroke();
+            }
+
+            // 2. Draw Main Base Circle Path
             ctx.beginPath();
             ctx.arc(cx, cy, rPx, 0, Math.PI * 2);
             ctx.strokeStyle = '#2c3e50';
             ctx.lineWidth = 2.5;
+            ctx.setLineDash([]);
             ctx.stroke();
 
-            // Center Point
+            // 3. Draw Center Focus Node
             ctx.fillStyle = '#e74c3c';
             ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2); ctx.fill();
 
-            ctx.lineWidth = 3;
-            ctx.font = "bold 14px Segoe UI";
+            // Set typography engine defaults
+            ctx.lineWidth = 2.5;
+            ctx.font = "bold 13px Segoe UI";
 
+            // 4. Mode-specific Dynamic Render Cycles
             if (currentMode === 'radius') {
+                // Show Dynamic Radius Vector and Full Diameter Span
                 ctx.strokeStyle = '#27ae60';
                 ctx.beginPath(); ctx.moveTo(cx - rPx, cy); ctx.lineTo(cx + rPx, cy); ctx.stroke();
+                
                 ctx.fillStyle = '#27ae60';
-                ctx.fillText(`Radius (r) = ${currentR} cm`, cx + 15, cy - 10);
-                ctx.fillText(`Diameter (d) = 7.0 cm`, cx - 100, cy + 25);
-            } 
+                ctx.fillText(`Radius (r) = ${paramRadius.toFixed(1)} cm`, cx + 15, cy - 12);
+                ctx.fillText(`Diameter (d) = ${(paramRadius * 2).toFixed(1)} cm`, cx - rPx + 15, cy + 22);
+            }
             else if (currentMode === 'area') {
+                // Fill Interior Space Zone
                 ctx.fillStyle = 'rgba(46, 204, 113, 0.15)';
                 ctx.beginPath(); ctx.arc(cx, cy, rPx, 0, Math.PI * 2); ctx.fill();
                 
                 ctx.strokeStyle = '#27ae60';
                 ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + rPx, cy); ctx.stroke();
+                
+                let areaCalc = Math.PI * Math.pow(paramRadius, 2);
+                let circumCalc = 2 * Math.PI * paramRadius;
+                
                 ctx.fillStyle = '#2c3e50';
-                ctx.fillText(`Area = πr² ≈ 38.47 cm²`, cx - 65, cy - 20);
-                ctx.fillText(`Perimeter = 2πr ≈ 21.98 cm`, cx - 80, cy + 30);
-            } 
+                ctx.fillText(`r = ${paramRadius.toFixed(1)} cm`, cx + (rPx/2) - 20, cy - 10);
+                ctx.fillText(`Area = πr² ≈ ${areaCalc.toFixed(2)} cm²`, cx - 85, cy - 35);
+                ctx.fillText(`Circumference = 2πr ≈ ${circumCalc.toFixed(2)} cm`, cx - 105, cy + 45);
+            }
             else if (currentMode === 'bisector') {
-                const distFromCenter = 1.8 * 32; 
-                const halfChordPx = Math.sqrt(rPx**2 - distFromCenter**2);
+                const dPx = paramBisectorDist * scalePx;
+                const halfChordLen = Math.sqrt(Math.pow(rPx, 2) - Math.pow(dPx, 2));
                 
+                // Draw Chord Path
                 ctx.strokeStyle = '#8e44ad';
-                ctx.beginPath(); ctx.moveTo(cx - halfChordPx, cy - distFromCenter); ctx.lineTo(cx + halfChordPx, cy - distFromCenter); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(cx - halfChordLen, cy - dPx); ctx.lineTo(cx + halfChordLen, cy - dPx); ctx.stroke();
                 
-                ctx.strokeStyle = '#2980b9'; ctx.setLineDash([4, 4]);
-                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, cy - distFromCenter); ctx.stroke();
+                // Draw Center Perpendicular Bisector Vector Line
+                ctx.strokeStyle = '#2980b9'; ctx.setLineDash([3, 3]);
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, cy - dPx); ctx.stroke();
                 ctx.setLineDash([]);
                 
-                ctx.strokeStyle = '#2c3e50'; ctx.lineWidth = 1.5;
-                ctx.strokeRect(cx - 8, cy - distFromCenter, 8, 8);
+                // Draw Right Angle Box Indicator
+                ctx.strokeStyle = '#34495e'; ctx.lineWidth = 1.5;
+                ctx.strokeRect(cx - 8, cy - dPx, 8, 8);
                 
+                // Connect Triangle Hypoteneuse (Radius Line) to form Pythagorean relationship
+                ctx.strokeStyle = '#7f8c8d'; ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + halfChordLen, cy - dPx); ctx.stroke();
+
+                // Metric Labels
                 ctx.fillStyle = '#2980b9';
-                ctx.fillText("Perpendicular (90°)", cx + 12, cy - (distFromCenter / 2));
+                ctx.fillText(`Dist (d) = ${paramBisectorDist.toFixed(1)} cm`, cx + 12, cy - (dPx / 2) + 4);
                 ctx.fillStyle = '#8e44ad';
-                ctx.fillText("Bisected Chord", cx - 45, cy - distFromCenter - 10);
-            } 
-            else if (currentMode === 'tangent') {
-                const tY = cy + rPx;
-                ctx.strokeStyle = '#e67e22';
-                ctx.beginPath(); ctx.moveTo(cx - 120, tY); ctx.lineTo(cx + 120, tY); ctx.stroke();
-                
-                ctx.strokeStyle = '#2c3e50';
-                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, tY); ctx.stroke();
-                ctx.strokeRect(cx, tY - 8, 8, 8);
-                
-                ctx.fillStyle = '#e67e22';
-                ctx.fillText("Tangent Line", cx + 25, tY + 20);
+                ctx.fillText(`Half Chord = ${(halfChordLen / scalePx).toFixed(1)} cm`, cx - halfChordLen, cy - dPx - 12);
                 ctx.fillStyle = '#2c3e50';
-                ctx.fillText("90° Point of Contact", cx + 12, tY - 15);
+                ctx.fillText(`r = ${paramRadius.toFixed(1)} cm`, (cx + cx + halfChordLen)/2 + 10, (cy + cy - dPx)/2);
+            }
+            else if (currentMode === 'tangent') {
+                // Convert current angular state parameter into active tracking radians
+                const rad = (paramTangentDeg * Math.PI) / 180;
+                
+                // Pinpoint contact coordinates along outer perimeter locus bounds
+                const contactX = cx + rPx * Math.cos(rad);
+                const contactY = cy - rPx * Math.sin(rad); // Match traditional quadrant rotation direction
+                
+                // Draw Inner Connecting Radius Path
+                ctx.strokeStyle = '#34495e';
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(contactX, contactY); ctx.stroke();
+                
+                // Construct Tangent Vector Lines
+                const tanDx = -Math.sin(rad) * 130;
+                const tanDy = -Math.cos(rad) * 130;
+                
+                ctx.strokeStyle = '#e67e22'; ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(contactX - tanDx, contactY - tanDy);
+                ctx.lineTo(contactX + tanDx, contactY + tanDy);
+                ctx.stroke();
+                
+                // Render Perpendicular Box Indicator Anchor
+                ctx.save();
+                ctx.translate(contactX, contactY);
+                ctx.rotate(-rad);
+                ctx.strokeStyle = '#2c3e50'; ctx.lineWidth = 1.5;
+                ctx.strokeRect(-8, -8, 8, 8);
+                ctx.restore();
+                
+                // Text Outputs
+                ctx.fillStyle = '#e67e22';
+                ctx.fillText("Tangent Line", contactX + 15, contactY + 25);
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillText("90° Contact", contactX - 45, contactY - 15);
             }
             else if (currentMode === 'equation') {
-                ctx.strokeStyle = '#7f8c8d'; ctx.lineWidth = 1; ctx.setLineDash([2, 2]);
-                ctx.beginPath(); ctx.moveTo(cx - rPx - 20, cy); ctx.lineTo(cx + rPx + 20, cy); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(cx, cy - rPx - 20); ctx.lineTo(cx, cy + rPx + 20); ctx.stroke();
-                ctx.setLineDash([]);
-                
                 ctx.fillStyle = '#1a2a6c';
-                ctx.fillText("Origin (0,0)", cx + 8, cy - 8);
-                ctx.fillText("Equation: x² + y² = 12.25", cx - 75, cy + rPx + 20);
+                ctx.fillText("Origin (0,0)", baseCx + 10, baseCy - 10);
+                
+                // Highlight dynamic point along edge boundary
+                const ptX = baseCx + rPx * Math.cos(Math.PI * 0.25);
+                const ptY = baseCy - rPx * Math.sin(Math.PI * 0.25);
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath(); ctx.arc(ptX, ptY, 4, 0, Math.PI * 2); ctx.fill();
+                
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillText(`Point (x, y)`, ptX + 10, ptY - 5);
+                ctx.fillText(`Equation: x² + y² = ${(paramRadius * paramRadius).toFixed(2)}`, 30, canvas.height - 25);
             }
             else if (currentMode === 'coordinates') {
-                ctx.strokeStyle = '#7f8c8d'; ctx.lineWidth = 1; ctx.setLineDash([2, 2]);
-                const originX = 225, originY = 160;
-                ctx.beginPath(); ctx.moveTo(20, originY); ctx.lineTo(430, originY); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(originX, 20); ctx.lineTo(originX, 300); ctx.stroke();
-                ctx.setLineDash([]);
-                
+                // Tracking line from origin over to shifted center position
                 ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 1.5;
-                ctx.beginPath(); ctx.moveTo(originX, originY); ctx.lineTo(cx, cy); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(baseCx, baseCy); ctx.lineTo(cx, cy); ctx.stroke();
                 
                 ctx.fillStyle = '#7f8c8d';
-                ctx.fillText("Origin (0,0)", originX - 80, originY + 18);
+                ctx.fillText("Origin (0,0)", baseCx - 85, baseCy + 18);
                 ctx.fillStyle = '#1a2a6c';
-                ctx.fillText("Shifted Center (h=2, k=1)", cx - 60, cy - 12);
-                ctx.fillText("Form: (x - 2)² + (y - 1)² = 3.5²", 35, 290);
+                ctx.fillText(`Center (h: ${paramShiftH.toFixed(1)}, k: ${paramShiftK.toFixed(1)})`, cx - 65, cy - 15);
+                
+                // Output updated standard form equation
+                ctx.fillStyle = '#2c3e50';
+                const signH = paramShiftH >= 0 ? '-' : '+';
+                const signK = paramShiftK >= 0 ? '-' : '+';
+                const absH = Math.abs(paramShiftH).toFixed(1);
+                const absK = Math.abs(paramShiftK).toFixed(1);
+                ctx.fillText(`Equation: (x ${signH} ${absH})² + (y ${signK} ${absK})² = 12.25`, 25, canvas.height - 25);
             }
             else if (currentMode === 'angles') {
-                const p1x = cx + rPx * Math.cos(Math.PI * 0.2);
-                const p1y = cy + rPx * Math.sin(Math.PI * 0.2);
-                const p2x = cx + rPx * Math.cos(Math.PI * 0.8);
-                const p2y = cy + rPx * Math.sin(Math.PI * 0.8);
+                // Determine layout span configurations based on angular input data
+                const halfSpanRad = (paramArcAngle / 2) * Math.PI / 180;
                 
-                const topX = cx + rPx * Math.cos(Math.PI * 1.4);
-                const topY = cy + rPx * Math.sin(Math.PI * 1.4);
+                // Arc base points
+                const b1x = cx + rPx * Math.cos(Math.PI * 1.5 - halfSpanRad);
+                const b1y = cy - rPx * Math.sin(Math.PI * 1.5 - halfSpanRad);
+                const b2x = cx + rPx * Math.cos(Math.PI * 1.5 + halfSpanRad);
+                const b2y = cy - rPx * Math.sin(Math.PI * 1.5 + halfSpanRad);
                 
-                ctx.strokeStyle = '#e67e22'; ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.moveTo(p1x, p1y); ctx.lineTo(cx, cy); ctx.lineTo(p2x, p2y); ctx.stroke();
+                // Summit point on opposite circumference wall boundary
+                const topX = cx + rPx * Math.cos(Math.PI * 0.5);
+                const topY = cy - rPx * Math.sin(Math.PI * 0.5);
                 
-                ctx.strokeStyle = '#2980b9';
-                ctx.beginPath(); ctx.moveTo(p1x, p1y); ctx.lineTo(topX, topY); ctx.lineTo(p2x, p2y); ctx.stroke();
+                // Render Center Angular Vectors
+                ctx.strokeStyle = '#e67e22'; ctx.lineWidth = 2.5;
+                ctx.beginPath(); ctx.moveTo(b1x, b1y); ctx.lineTo(cx, cy); ctx.lineTo(b2x, b2y); ctx.stroke();
                 
+                // Render Circumference Angular Vectors
+                ctx.strokeStyle = '#2980b9'; ctx.lineWidth = 2.5;
+                ctx.beginPath(); ctx.moveTo(b1x, b1y); ctx.lineTo(topX, topY); ctx.lineTo(b2x, b2y); ctx.stroke();
+                
+                // Value displays
                 ctx.fillStyle = '#e67e22';
-                ctx.fillText("Center Angle (2x°)", cx - 55, cy + 25);
+                ctx.fillText(`Center Angle: ${paramArcAngle}°`, cx - 55, cy + 30);
                 ctx.fillStyle = '#2980b9';
-                ctx.fillText("Circumference Angle (x°)", topX - 70, topY - 10);
+                ctx.fillText(`Circumference Angle: ${(paramArcAngle / 2)}°`, topX - 75, topY - 15);
+                
+                // Thicken arc baseline path to emphasize shared arc properties
+                ctx.strokeStyle = '#2c3e50'; ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.arc(cx, cy, rPx, Math.PI * 1.5 - halfSpanRad, Math.PI * 1.5 + halfSpanRad, false);
+                ctx.stroke();
             }
         }
 
+        // Run Initial Core Boot sequence and display options setup
         acc[0].classList.add("active");
         acc[0].nextElementSibling.style.maxHeight = acc[0].nextElementSibling.scrollHeight + "px";
         draw();
